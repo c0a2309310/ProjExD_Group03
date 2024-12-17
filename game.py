@@ -33,13 +33,6 @@ class MP:
         self.image = self.font.render(f"Score: {self.value}", 0, self.color)
         self.rect = self.image.get_rect()
         self.rect.center = 100, HEIGHT-50
-        self.counter = 0
-
-    def count(self):
-        self.counter += 1
-        if self.counter == 100:
-            self.counter = 0
-            self.value += 1
 
     def update(self, screen: pg.Surface):
         self.image = self.font.render(f"Score: {self.value}", 0, self.color)
@@ -73,17 +66,20 @@ def main():
                 return
         # キー入力の取得
         key_lst = pg.key.get_pressed()
+
         # ジャンプ処理（スペースキー）
         if key_lst[pg.K_SPACE]:
             vy = JUMP_POWER  # ジャンプ初速を設定
         # 重力による縦移動
         vy += GRAVITY
         kk_rct.move_ip(0, vy)
+
         # ブロックの移動処理と再生成
         for i, block in enumerate(blocks):
             block.move_ip(-BLOCK_SPEED, 0)  # ブロックを左に移動
             if block.right < 0:  # 画面外に出たらランダムに再生成
                 blocks[i] = create_random_block(random.randint(200, 600))  # 次のブロックをランダム位置で再生成
+
         # キャラクターとブロックの当たり判定
         on_block = False
         for block in blocks:
@@ -92,11 +88,13 @@ def main():
                 vy = 0  # 落下を止める
                 on_block = True
                 break
+
         # 地面の処理（着地判定）
         if not on_block:  # ブロックの上にいない場合のみ地面を確認
             if kk_rct.bottom > GROUND:
                 kk_rct.bottom = GROUND
                 vy = 0  # 着地したら速度リセット
+
         # 背景スクロール
         x = -(tmr % 3200)
         screen.blit(bg_img, [x, 0])
@@ -108,7 +106,7 @@ def main():
         # ブロックの描画
         for block in blocks:
             pg.draw.rect(screen, (0, 255, 0), block)  # 緑色のブロック
-        mp.count()
+        mp.value += 1
         mp.update(screen)
         pg.display.update()
         tmr += 10  # 背景スクロールの速度
